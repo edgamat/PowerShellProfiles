@@ -5,12 +5,14 @@
 Add the following to your default profile:
 
 ```powershell
+cd ~/source
+git clone https://github.com/edgamat/PowerShellProfiles
 code $PROFILE
 ```
 
 ```powershell
 # Use the correct path to the cloned repo
-$ProfileRepoPath = "C:\Users\$env:USERNAME\source\PowerShellProfiles"
+$ProfileRepoPath = "$env:USERPROFILE\source\PowerShellProfiles"
 
 # Select a profile to load
 $SelectedProfile = "GeneralProfile.ps1"  # Change as needed
@@ -63,3 +65,12 @@ if ($host.Name -eq 'ConsoleHost')
 }
 ```
 
+## Terminal Icons
+
+[https://github.com/devblackops/Terminal-Icons](https://github.com/devblackops/Terminal-Icons)
+
+```powershell
+Install-Module -Name Terminal-Icons -Repository PSGallery
+
+Import-Module -Name Terminal-Icons
+```

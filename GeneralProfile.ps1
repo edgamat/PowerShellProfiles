@@ -2,6 +2,7 @@ if ($host.Name -eq 'ConsoleHost')
 {
     Import-Module posh-git
     Import-Module PSReadLine
+    Import-Module -Name Terminal-Icons
 }
 
 # PowerShell parameter completion shim for the dotnet CLI
@@ -12,6 +13,7 @@ Register-ArgumentCompleter -Native -CommandName dotnet -ScriptBlock {
         }
 }
 
+# PowerShell parameter completion shim for the Azure CLI
 Register-ArgumentCompleter -Native -CommandName az -ScriptBlock {
     param($commandName, $wordToComplete, $cursorPosition)
     $completion_file = New-TemporaryFile
@@ -31,7 +33,7 @@ Register-ArgumentCompleter -Native -CommandName az -ScriptBlock {
 }
 
 function ListDirectories { ls -Directory }
-function Print-Environment { gci env:* | Sort-Object -Property Name }
+function Print-Environment { gci env:* | Sort-Object -Property Name | more }
 function Git-Checkout { git checkout @args }
 function Git-PushForce { git push --force-with-lease }
 function Git-CommitAmend { git commit --amend }
@@ -46,6 +48,18 @@ function Get-History {
     Get-Content (Get-PSReadlineOption).HistorySavePath | ? {$_ -like "*$find*"} | Get-Unique | more
 }
 
+function Git-Prune {
+    git checkout main
+    git fetch --prune
+
+    $branches = git branch -vv
+        | Select-String '\: gone\]'
+        | ForEach-Object { $_.Line.Trim().Split(' ')[0] }
+        | Where-Object { $_ -ne 'main' }
+
+    $branches | ForEach-Object { git branch -D $_ }
+}
+
 Set-Alias -Name "printenv" -Value Print-Environment
 Set-Alias -Name "gco" -Value Git-Checkout
 Set-Alias -Name "gpf" -Value Git-PushForce
@@ -53,5 +67,6 @@ Set-Alias -Name "gca" -Value Git-CommitAmend
 Set-Alias -Name "grc" -Value Git-RebaseContinue
 Set-Alias -Name "grm" -Value Git-RebaseMain
 Set-Alias -Name "gbump" -Value Git-Bump
+Set-Alias -Name "gprune" -Value Git-Prune
 Set-Alias -Name "hist" -Value Get-History
 Set-ALias -Name "lsd" -Value ListDirectories
